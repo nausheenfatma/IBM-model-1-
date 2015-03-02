@@ -146,9 +146,9 @@ def save_output(p,english_lines,foreign_lines):
 
 #Execution begins from below---------
 #sys.setdefaultencoding("utf8")
-english_lines=readfile('eng')
+english_lines=readfile('corpus_english')
 #print english_lines
-foreign_lines=readfile('german')
+foreign_lines=readfile('corpus_hindi')
 tr=translation_probabilites_for_all_word_pairs(english_lines,foreign_lines)
 sentence_probabilties=translation_probability_for_all_sentence_pairs(english_lines,foreign_lines,tr)
 sorted_sentence_probabilties=reverse_sort_2d_array(sentence_probabilties)
