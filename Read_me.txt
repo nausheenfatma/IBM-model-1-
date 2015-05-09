@@ -14,5 +14,4 @@ Output :-
 Translation probabilities of each word in file tr_prob.
 After obtaining the translation probabilities of word pairs(english-hindi), output the top 500 sentences (English-Hindi Pair) with highest probabilities.
 
-
-
+Sample tr_prob and sample parallel corpus is also given with the code.
