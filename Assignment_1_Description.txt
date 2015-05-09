@@ -13,6 +13,5 @@ Output :-
 
 After obtaining the translation probabilities of word pairs(english-hindi), output the top 500 sentences (English-Hindi Pair) with highest probabilities.
 
-Deadline - 09.02.2015 11:59 PM
 
 
