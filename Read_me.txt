@@ -11,6 +11,7 @@ Implement the EM algorithm(IBM model 1) to find the translation probability of e
 
 Output :-
 
+Translation probabilities of each word in file tr_prob.
 After obtaining the translation probabilities of word pairs(english-hindi), output the top 500 sentences (English-Hindi Pair) with highest probabilities.
 
 
