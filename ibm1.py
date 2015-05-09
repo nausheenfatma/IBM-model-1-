@@ -2,9 +2,27 @@
 from nltk.tokenize import RegexpTokenizer
 from math import pow
 import operator
-import sys
 
-
+def readfile(f):
+    f1=open(f,"r")
+    english_lines={}
+    hindi_lines={}
+    i=0
+    for line in f1:
+        #print i
+        line_read=line.rstrip("\n")
+        lines=line_read.split("###")
+        english_line=lines[0]
+        hindi_line=lines[1]
+        #print hindi_line
+        english_lines[i]=english_line
+        hindi_lines[i]=hindi_line
+        i=i+1
+    return english_lines,hindi_lines
+            #find length of english words
+    
+        
+            
 #remove sepcial characters from text
 def remove_special_characters(text):
 	tokenizer = RegexpTokenizer(r'\w+')
@@ -14,7 +32,7 @@ def remove_special_characters(text):
         return " ".join(list)
 
 #read file and return the lines
-def readfile(filename):
+def readfile1(filename):
 	dictval = {}
 	linenumber=0
         with open(filename,"r") as text:
@@ -36,67 +54,110 @@ def preprocess(filename):
 
 #calculating translation probabilities for each word english-foreign language word pair
 def translation_probabilites_for_all_word_pairs(E,F):
-	#the below E_wordlist is a 2D list consisting of list of tokens for each sentence 
-	E_wordlist={}
-	F_wordlist={}
-	#print E        
-	for k,v in E.items():
-		 #print v
-		 E_wordlist[k]=v.split()
-	#print E_wordlist
-	#F_wordlist = [line.split() for line in F]
-	for k,v in F.items():
-		 #print v
-		 F_wordlist[k]=v.split()
-	#print F_wordlist
-	#print E_wordlist
-        tr={}
-	count={}
-	total={}
-	eng_words={}
-	foreign_words={}
-        for i in  range(len(E_wordlist)):	
-		for englishword in E_wordlist[i]:
-			eng_words[englishword]=englishword
+    E_wordlist={}
+    F_wordlist={}
+    tr={}
+    eng_words={}
+    foreign_words={}
+    count={}
+    total={}
+    
+    for k,v in E.items():
+        E_wordlist[k]=v.split()
+    print "hello"
+    
+    for k,v in F.items():
+        F_wordlist[k]=v.split()
+    for i in  range(len(E_wordlist)):
+        for englishword in E_wordlist[i]:
+            if englishword not in eng_words:
+                eng_words[englishword]=0
+    #print "english done"
+    
+    for i in range(len(F_wordlist)):
+            for foreignword in F_wordlist[i]:
+                if foreignword not in foreign_words:
+                    foreign_words[foreignword]=0
+                    #print i
+    #print "hindi done"
+    #print "eng",len(eng_words)
+    #print "hindi",len(foreign_words)
+    k=1
+    tr={}
+    for i in range(len(E)):
+         #print i
+         for e in E_wordlist[i]:
+             if e not in tr.keys():
+                 tr[e]={}
+             for f in F_wordlist[i]:
+                 if f not in tr[e].keys():
+                     tr[e][f]=1/float(len(eng_words))
 
-        for i in  range(len(F_wordlist)):	
-		for foreignword in F_wordlist[i]:
-			foreign_words[foreignword]=foreignword
+    for i in range(len(E)):
+         print i
+         for e in E_wordlist[i]:
+             if e not in tr.keys():
+                 tr[e]={}
+             for f in F_wordlist[i]:
+                 if f not in tr[e].keys():
+                     tr[e][f]=1/float(len(eng_words))
+                            
+    
+                 
+    #print tr
+            
+            
+    
+    print "iteration started now..."
+    #no of iterations is 5
+    for j in range(5):
+        print "iteration="+str(j)
+                
+        for e in tr.keys():
+            count[e]={}
+            for f in tr[e].keys():
+                count[e][f]=0
+                total[f]=0
+        
+        s_total={}
+        j=j+1
+        for i in  range(len(E_wordlist)):
+            for e in E_wordlist[i]:
+                s_total[e]=0
+                for f in F_wordlist[i]:
+                    s_total[e]=s_total[e]+tr[e][f]
+                    
+            for e in E_wordlist[i]:
+                for f in F_wordlist[i]:
+                    if not s_total[e]==0 :
+                        count[e][f]=count[e][f]+(tr[e][f]/s_total[e])
+                        total[f]=total[f]+(tr[e][f]/s_total[e])
+                        
+        file1=open("tr_prob","w")
+	m=0        
+#        for f in foreign_words.keys():
+#	    #print m
+#	    m=m+1
+#            for e in eng_words.keys():
+#                if not total[f]==0 :
+#                    tr[e][f]=count[e][f]/total[f]
+#                    if(tr[e][f]>0.7):
+#                        file1.write("\n"+f)
+#                        file1.write("->"+e+str(tr[e][f])+";")
 
-	for e in eng_words:
-		tr[e]={}
-		for f in foreign_words:
-			tr[e][f]=1/float(len(E_wordlist))
-			
-	#number of iterations=5
-	for i in range(5):
-		print 'iteration'+str(i)
-     
-		for e in eng_words:
-			count[e]={}
-			for f in foreign_words:
-				count[e][f]=0
-        			total[f]=0
-	
-		s_total={}
-        	for i in  range(len(E_wordlist)):	
-			for e in E_wordlist[i]:
-				s_total[e]=0
-				for f in F_wordlist[i]:
-         				s_total[e]=s_total[e]+tr[e][f]
-
-			for e in E_wordlist[i]:
-				for f in F_wordlist[i]:
-					if not s_total[e]==0 :
-         					count[e][f]=count[e][f]+(tr[e][f]/s_total[e])
-						total[f]=total[f]+(tr[e][f]/s_total[e])
-
-        	for f in foreign_words:
-	    		for e in eng_words:
-				if not total[f]==0 :
-					tr[e][f]=count[e][f]/total[f]
-	return tr
-
+        for e in tr.keys():
+	    #print m
+	    m=m+1
+            for f in tr[e].keys():
+                if not total[f]==0 :
+                    tr[e][f]=count[e][f]/total[f]
+                    if(tr[e][f]>0.7):
+                        file1.write("\n"+f)
+                        file1.write("->"+e+str(tr[e][f])+";")
+        file1.close()           
+    print "done"
+    return tr      
+                        
        
 def translation_probability_for_a_sentence_pair(E,F,tr):
 	p=0
@@ -110,13 +171,9 @@ def translation_probability_for_a_sentence_pair(E,F,tr):
 
 def translation_probability_for_all_sentence_pairs(E,F,tr):
 	sentence_probab=[[0 for col in range(2)] for row in range(len(E))]
-	sentence_probabilty=[]
-	#E_wordlist = [line.split() for line in E]
-	#F_wordlist = [line.split() for line in F]
 	E_wordlist={}
 	F_wordlist={}
 	for k,v in E.items():
-		 #print v
 		 E_wordlist[k]=v.split()
 	#print E_wordlist
 	#F_wordlist = [line.split() for line in F]
@@ -146,12 +203,17 @@ def save_output(p,english_lines,foreign_lines):
 
 #Execution begins from below---------
 #sys.setdefaultencoding("utf8")
-english_lines=readfile('corpus_english')
-#print english_lines
-foreign_lines=readfile('corpus_hindi')
+english_lines,foreign_lines=readfile('parallel_corpus')
+print "lines read"
 tr=translation_probabilites_for_all_word_pairs(english_lines,foreign_lines)
-sentence_probabilties=translation_probability_for_all_sentence_pairs(english_lines,foreign_lines,tr)
-sorted_sentence_probabilties=reverse_sort_2d_array(sentence_probabilties)
-save_output(sorted_sentence_probabilties,english_lines,foreign_lines)
+#sentence_probabilties=translation_probability_for_all_sentence_pairs(english_lines,foreign_lines,tr)
+#sorted_sentence_probabilties=reverse_sort_2d_array(sentence_probabilties)
+#save_output(sorted_sentence_probabilties,english_lines,foreign_lines)
 
 
+
+            
+                    
+            
+            
+    
